@@ -8,11 +8,15 @@
 
 #include "task.hpp"
 
+#include <cpr/cpr.h>
 #include <cstring>
+#include <fmt/core.h>
 #include <thread>
 #include <utility>
 
 // #define MOCKED_PACKETS
+// local kubernetes cluster default namespace nf manager
+#define MANAGER_PROXY "http://nf-proxy.default.svc.cluster.local"
 
 #ifdef MOCKED_PACKETS
 static std::string MOCK_LIST[] = {
@@ -40,6 +44,11 @@ static int MOCK_INDEX = -1;
 
 namespace nr::gnb
 {
+
+void sendHttpRequest(const std::string &url, const std::string &body)
+{
+    cpr::Response r = cpr::Post(cpr::Url{url}, cpr::Body{body}, cpr::Header{{"Content-Type", "application/json"}});
+}
 
 class SctpHandler : public sctp::ISctpHandler
 {
@@ -126,12 +135,15 @@ void SctpTask::onLoop()
     switch (msg->msgType)
     {
     case NtsMessageType::GNB_SCTP: {
-        auto& w = dynamic_cast<NmGnbSctp &>(*msg);
+        auto &w = dynamic_cast<NmGnbSctp &>(*msg);
         switch (w.present)
         {
         case NmGnbSctp::CONNECTION_REQUEST: {
-            receiveSctpConnectionSetupRequest(w.clientId, w.localAddress, w.localPort, w.remoteAddress,
-                                              w.remotePort, w.ppid, w.associatedTask);
+            receiveSctpConnectionSetupRequest(w.clientId, w.localAddress, w.localPort, w.remoteAddress, w.remotePort,
+                                              w.ppid, w.associatedTask);
+            std::string url = fmt::format("{}/{}/{}/{}", MANAGER_PROXY, "CONNECTION_REQUEST", w.clientId, w.ppid);
+            sendHttpRequest(url, "CONNECTION_REQUEST");
+            m_logger->info("CONNECTION_REQUEST informed to manager");
             break;
         }
         case NmGnbSctp::CONNECTION_CLOSE: {
@@ -140,6 +152,10 @@ void SctpTask::onLoop()
         }
         case NmGnbSctp::ASSOCIATION_SETUP: {
             receiveAssociationSetup(w.clientId, w.associationId, w.inStreams, w.outStreams);
+            std::string url =
+                fmt::format("{}/{}/{}/{}", MANAGER_PROXY, "ASSOCIATION_SETUP", w.clientId, w.associationId);
+            sendHttpRequest(url, "ASSOCIATION_SETUP");
+            m_logger->info("ASSOCIATION_SETUP informed to manager");
             break;
         }
         case NmGnbSctp::ASSOCIATION_SHUTDOWN: {
@@ -148,10 +164,16 @@ void SctpTask::onLoop()
         }
         case NmGnbSctp::RECEIVE_MESSAGE: {
             receiveClientReceive(w.clientId, w.stream, std::move(w.buffer));
+            std::string url = fmt::format("{}/{}/{}/{}", MANAGER_PROXY, "RECIEVE_MESSAGE", w.clientId, w.stream);
+            sendHttpRequest(url, "RECEIVE_MESSAGE");
+            m_logger->info("RECEIVE_MESSAGE informed to manager");
             break;
         }
         case NmGnbSctp::SEND_MESSAGE: {
             receiveSendMessage(w.clientId, w.stream, std::move(w.buffer));
+            std::string url = fmt::format("{}/{}/{}/{}", MANAGER_PROXY, "SEND_MESSAGE", w.clientId, w.stream);
+            sendHttpRequest(url, "SEND_MESSAGE");
+            m_logger->info("SEND_MESSAGE informed to manager");
             break;
         }
         case NmGnbSctp::UNHANDLED_NOTIFICATION: {
