@@ -6,6 +6,8 @@ set(CMAKE_C_STANDARD 11)
 
 include_directories(src)
 
+find_package(CURL REQUIRED)
+
 #################### SUB DIRECTORIES ####################
 
 add_subdirectory(src/ext)
@@ -24,7 +26,7 @@ add_executable(nr-gnb src/gnb.cpp)
 target_link_libraries(nr-gnb pthread)
 
 target_compile_options(nr-gnb PRIVATE -Wall -Wextra -pedantic -lcurl)
-
+target_link_libraries(nr-gnb ${CURL_LIBRARIES})
 target_link_libraries(nr-gnb asn-rrc)
 target_link_libraries(nr-gnb asn-ngap)
 target_link_libraries(nr-gnb common-lib)
