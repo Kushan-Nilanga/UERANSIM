@@ -4,9 +4,17 @@ project(ueransim)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
 
-include_directories(src)
+FIND_PACKAGE(CURL)
+IF(CURL_FOUND)
+  INCLUDE_DIRECTORIES(${CURL_INCLUDE_DIR})
+  SET(requiredlibs ${requiredlibs} ${CURL_LIBRARIES} )
+ELSE(CURL_FOUND)
+  MESSAGE(FATAL_ERROR "Could not find the CURL library and development files.")
+ENDIF(CURL_FOUND)
 
-find_package(CURL REQUIRED)
+include_directories(src)
+include_directories(${CURL_INCLUDE_DIR})
+
 
 #################### SUB DIRECTORIES ####################
 
@@ -23,20 +31,20 @@ add_subdirectory(src/ue)
 
 add_executable(nr-gnb src/gnb.cpp)
 
-target_link_libraries(nr-gnb pthread)
-target_link_libraries(nr-gnb CURL::libcurl)
-
 target_compile_options(nr-gnb PRIVATE -Wall -Wextra -pedantic -lcurl)
+target_link_libraries(nr-gnb pthread)
 target_link_libraries(nr-gnb asn-rrc)
 target_link_libraries(nr-gnb asn-ngap)
 target_link_libraries(nr-gnb common-lib)
 target_link_libraries(nr-gnb gnb)
+target_link_libraries(nr-gnb ${CURL_LIBRARIES})
+
 
 #################### UE EXECUTABLE ####################
 
 add_executable(nr-ue src/ue.cpp)
 target_link_libraries(nr-ue pthread)
-target_compile_options(nr-ue PRIVATE -Wall -Wextra -pedantic)
+target_compile_options(nr-ue PRIVATE -Wall -Wextra -pedantic -lcurl)
 
 target_link_libraries(nr-ue common-lib)
 target_link_libraries(nr-ue ue)
