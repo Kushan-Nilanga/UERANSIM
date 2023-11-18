@@ -7,6 +7,7 @@ set(CMAKE_C_STANDARD 11)
 include_directories(src)
 
 find_package(CURL REQUIRED)
+include_directories(${CURL_INCLUDE_DIR})
 
 #################### SUB DIRECTORIES ####################
 
