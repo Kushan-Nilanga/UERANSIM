@@ -10,7 +10,6 @@
 
 #include <cstring>
 #include <curl/curl.h>
-#include <fmt/core.h>
 #include <thread>
 #include <utility>
 
