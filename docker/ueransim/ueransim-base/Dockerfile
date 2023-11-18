@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update
 RUN apt-get -y upgrade
-RUN apt-get -y install make g++ libsctp-dev libcurl4-openssl-dev
+RUN apt-get -y install make g++ libsctp-dev  libcurl4 libcurl4-openssl-dev
 RUN apt-get -y install git python3 python3-pip
 RUN pip3 install cmake
 

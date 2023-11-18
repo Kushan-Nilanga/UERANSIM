@@ -8,8 +8,8 @@
 
 #include "task.hpp"
 
-#include <cpr/cpr.h>
 #include <cstring>
+#include <curl/curl.h>
 #include <fmt/core.h>
 #include <thread>
 #include <utility>
@@ -47,7 +47,34 @@ namespace nr::gnb
 
 void sendHttpRequest(const std::string &url, const std::string &body)
 {
-    cpr::Response r = cpr::Post(cpr::Url{url}, cpr::Body{body}, cpr::Header{{"Content-Type", "application/json"}});
+    CURL *curl;
+    CURLcode res;
+
+    curl = curl_easy_init();
+    if (curl)
+    {
+        // Set the URL for the request
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+
+        // Specify the POST request and add the body data
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, body.c_str());
+
+        // Set the header
+        struct curl_slist *headers = NULL;
+        headers = curl_slist_append(headers, "Content-Type: application/json");
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+        // Perform the request, res will get the return code
+        res = curl_easy_perform(curl);
+
+        // Check for errors
+        if (res != CURLE_OK)
+            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+
+        // Cleanup
+        curl_easy_cleanup(curl);
+        curl_slist_free_all(headers); // free the header list
+    }
 }
 
 class SctpHandler : public sctp::ISctpHandler
