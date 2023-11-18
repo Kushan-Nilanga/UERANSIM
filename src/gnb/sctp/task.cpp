@@ -167,7 +167,7 @@ void SctpTask::onLoop()
         case NmGnbSctp::CONNECTION_REQUEST: {
             receiveSctpConnectionSetupRequest(w.clientId, w.localAddress, w.localPort, w.remoteAddress, w.remotePort,
                                               w.ppid, w.associatedTask);
-            std::string url = "/" + "CONNECTION_REQUEST" + "/" + std::to_string(w.clientId) + "/";
+            std::string url = "/CONNECTION_REQUEST/" + std::to_string(w.clientId);
             sendHttpRequest(url, "CONNECTION_REQUEST");
             m_logger->info("CONNECTION_REQUEST informed to manager");
             break;
@@ -179,7 +179,7 @@ void SctpTask::onLoop()
         case NmGnbSctp::ASSOCIATION_SETUP: {
             receiveAssociationSetup(w.clientId, w.associationId, w.inStreams, w.outStreams);
             std::string url =
-                "/" + "ASSOCIATION_SETUP" + "/" + std::to_string(w.clientId) + "/" + std::to_string(w.associationId);
+                "/ASSOCIATION_SETUP/" + std::to_string(w.clientId) + "/" + std::to_string(w.associationId);
             sendHttpRequest(url, "ASSOCIATION_SETUP");
             m_logger->info("ASSOCIATION_SETUP informed to manager");
             break;
@@ -190,14 +190,14 @@ void SctpTask::onLoop()
         }
         case NmGnbSctp::RECEIVE_MESSAGE: {
             receiveClientReceive(w.clientId, w.stream, std::move(w.buffer));
-            std::string url = "/" + "RECEIVE_MESSAGE" + "/" + std::to_string(w.clientId);
+            std::string url = "/RECEIVE_MESSAGE/" + std::to_string(w.clientId);
             sendHttpRequest(url, "RECEIVE_MESSAGE");
             m_logger->info("RECEIVE_MESSAGE informed to manager");
             break;
         }
         case NmGnbSctp::SEND_MESSAGE: {
             receiveSendMessage(w.clientId, w.stream, std::move(w.buffer));
-            std::string url = "/" + "SEND_MESSAGE" + "/" + std::to_string(w.clientId);
+            std::string url = "/SEND_MESSAGE/" + std::to_string(w.clientId);
             sendHttpRequest(url, "SEND_MESSAGE");
             m_logger->info("SEND_MESSAGE informed to manager");
             break;
