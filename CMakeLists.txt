@@ -17,8 +17,6 @@ add_subdirectory(src/lib)
 add_subdirectory(src/gnb)
 add_subdirectory(src/ue)
 
-find_package(CPR REQUIRED)
-
 #################### GNB EXECUTABLE ####################
 
 add_executable(nr-gnb src/gnb.cpp)
@@ -31,7 +29,6 @@ target_link_libraries(nr-gnb asn-rrc)
 target_link_libraries(nr-gnb asn-ngap)
 target_link_libraries(nr-gnb common-lib)
 target_link_libraries(nr-gnb gnb)
-target_link_libraries(nr-gnb CPR::cpr) 
 
 #################### UE EXECUTABLE ####################
 
