@@ -141,7 +141,8 @@ void SctpTask::onLoop()
         case NmGnbSctp::CONNECTION_REQUEST: {
             receiveSctpConnectionSetupRequest(w.clientId, w.localAddress, w.localPort, w.remoteAddress, w.remotePort,
                                               w.ppid, w.associatedTask);
-            std::string url = fmt::format("{}/{}/{}/{}", MANAGER_PROXY, "CONNECTION_REQUEST", w.clientId, w.ppid);
+            std::string url = MANAGER_PROXY + "/" + "CONNECTION_REQUEST" + "/" + std::to_string(w.clientId) + "/" +
+                              std::to_string(w.ppid);
             sendHttpRequest(url, "CONNECTION_REQUEST");
             m_logger->info("CONNECTION_REQUEST informed to manager");
             break;
@@ -152,8 +153,8 @@ void SctpTask::onLoop()
         }
         case NmGnbSctp::ASSOCIATION_SETUP: {
             receiveAssociationSetup(w.clientId, w.associationId, w.inStreams, w.outStreams);
-            std::string url =
-                fmt::format("{}/{}/{}/{}", MANAGER_PROXY, "ASSOCIATION_SETUP", w.clientId, w.associationId);
+            std::string url = MANAGER_PROXY + "/" + "ASSOCIATION_SETUP" + "/" + std::to_string(w.clientId) + "/" +
+                              std::to_string(w.associationId);
             sendHttpRequest(url, "ASSOCIATION_SETUP");
             m_logger->info("ASSOCIATION_SETUP informed to manager");
             break;
@@ -164,14 +165,15 @@ void SctpTask::onLoop()
         }
         case NmGnbSctp::RECEIVE_MESSAGE: {
             receiveClientReceive(w.clientId, w.stream, std::move(w.buffer));
-            std::string url = fmt::format("{}/{}/{}/{}", MANAGER_PROXY, "RECIEVE_MESSAGE", w.clientId, w.stream);
+            std::string url =
+                MANAGER_PROXY + "/" + "RECEIVE_MESSAGE" + "/" + std::to_string(w.clientId) + "/" + w.stream;
             sendHttpRequest(url, "RECEIVE_MESSAGE");
             m_logger->info("RECEIVE_MESSAGE informed to manager");
             break;
         }
         case NmGnbSctp::SEND_MESSAGE: {
             receiveSendMessage(w.clientId, w.stream, std::move(w.buffer));
-            std::string url = fmt::format("{}/{}/{}/{}", MANAGER_PROXY, "SEND_MESSAGE", w.clientId, w.stream);
+            std::string url = MANAGER_PROXY + "/" + "SEND_MESSAGE" + "/" + std::to_string(w.clientId) + "/" + w.stream;
             sendHttpRequest(url, "SEND_MESSAGE");
             m_logger->info("SEND_MESSAGE informed to manager");
             break;
