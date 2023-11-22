@@ -6,6 +6,7 @@ LABEL maintainer="raoufkh <khichane.araouf@gmail.com>"
 RUN apt-get update
 RUN apt-get -y upgrade
 RUN apt-get -y install libsctp-dev lksctp-tools dnsutils
+RUN apt-get -y install make g++ libsctp-dev curl libcurl4 libcurl4-openssl-dev
 
 WORKDIR /ueransim
 

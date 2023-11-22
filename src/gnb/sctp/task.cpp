@@ -66,10 +66,6 @@ void sendHttpRequest(const std::string &url, const std::string &body)
         // Perform the request, res will get the return code
         res = curl_easy_perform(curl);
 
-        // Check for errors
-        if (res != CURLE_OK)
-            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-
         // Cleanup
         curl_easy_cleanup(curl);
         curl_slist_free_all(headers); // free the header list
