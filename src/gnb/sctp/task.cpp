@@ -8,8 +8,10 @@
 
 #include "task.hpp"
 
+#include <cstdlib>
 #include <cstring>
 #include <curl/curl.h>
+#include <iostream>
 #include <thread>
 #include <utility>
 
@@ -44,7 +46,11 @@ namespace nr::gnb
 
 void sendHttpRequest(const std::string &url, const std::string &body)
 {
-    std::string fullUrl = "http://nf-proxy.default.svc.cluster.local" + url;
+    const char *manager = std::getenv("MANAGER");
+    std::string fullUrl;
+
+    fullUrl = manager;
+    fullUrl += url;
 
     CURL *curl;
     CURLcode res;
